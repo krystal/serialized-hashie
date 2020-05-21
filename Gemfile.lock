@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    serialized-hashie (1.0.2)
+    serialized-hashie (1.0.3)
       hashie (>= 4.0, < 5.0)
       json (>= 2.0, < 3.0)
 
