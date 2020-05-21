@@ -1,36 +1,54 @@
-# SerializedHashie
+# Serialized Hashie
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/serialized_hashie`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This is a library that allows you to serialize a Hashie::Mash object (as JSON) into a database. It also features a couple of extra extensions to allow you to alter how objects are serialized/deserialized.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'serialized_hashie'
+source 'https://rubygems.pkg.github.com/krystal' do
+  gem 'serialized-hashie', '~> 1.0'
+end
 ```
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install serialized_hashie
 
 ## Usage
 
-TODO: Write usage instructions here
+This is designed to be used a serializer for ActiveRecord models.
+
+```ruby
+class User < ApplicationRecord
+  serialize :properties, SerializedHashie::Hash
+end
+
+user = User.new
+user.properties.something = 'Hello world!'
+user.save
+
+user = User.last
+user.properties.something #=> 'Hello world!'
+```
+
+### Extensions
+
+The loading & dumping can also be extended to handle how individual entries in any hashes are handled.
+
+```ruby
+# Add an extension to dump all stings in uppercase
+SerializedHashie.dump_extensions.add(:upcase) do |value|
+  value.is_a?(String) ? value.upcase : value
+end
+
+# Add a load extension to always return them again in lowercase
+SerializedHashie.load_extensions.add(:downcase) do |value|
+  value.is_a?(String) ? value.downcase : value
+end
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rspec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/serialized_hashie.
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/krystal/serialized-hashie.
