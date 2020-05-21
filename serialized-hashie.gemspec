@@ -7,10 +7,11 @@ Gem::Specification.new do |spec|
   spec.version       = SerializedHashie::VERSION
   spec.authors       = ['Adam Cooke']
   spec.email         = ['adam@krystal.uk']
-
   spec.summary       = 'Helpers to serialize data into ActiveRecord models as JSON and returning a Hashie::Mash'
   spec.description   = spec.summary
   spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
+  spec.licence        = ['MIT']
+  spec.homepage       = 'https://github.com/krystal/serialized-hashie'
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(/^(test|spec|features)\//) }
