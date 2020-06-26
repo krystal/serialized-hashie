@@ -16,6 +16,6 @@ jobs:
           ruby-version: ${{ matrix.ruby_version }}
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: bundle install
+        run: bundle install && bundle exec appraisal install
       - name: Run tests
-        run: bundle exec rspec
+        run: bundle exec appraisal rspec

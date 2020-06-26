@@ -8,5 +8,8 @@
 /spec/reports/
 /tmp/
 
+# Appraisals generated Gemfiles
+/gemfiles/
+
 # rspec failure tracking
 .rspec_status
