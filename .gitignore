@@ -1,11 +1,15 @@
 /.bundle/
 /.yardoc
+/Gemfile.lock
 /_yardoc/
 /coverage/
 /doc/
 /pkg/
 /spec/reports/
 /tmp/
+
+# Appraisals generated Gemfiles
+/gemfiles/
 
 # rspec failure tracking
 .rspec_status

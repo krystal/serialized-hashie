@@ -20,6 +20,8 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(/^exe\//) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
+  spec.add_development_dependency 'appraisal', '~> 2.3'
+
   spec.add_runtime_dependency 'hashie', '>= 4.0', '< 5.0'
-  spec.add_runtime_dependency 'json', '>= 2.0', '< 3.0'
+  spec.add_runtime_dependency 'json', '>= 1.8', '< 3.0'
 end
