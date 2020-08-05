@@ -5,6 +5,8 @@ require 'serialized_hashie/hash'
 
 RSpec.describe SerializedHashie::Hash do
   context '.dump' do
+    after(:each) { SerializedHashie.dump_extensions.reset }
+
     it 'should return a JSON string' do
       value = described_class.dump({ hello: 'World' })
       expect(value).to eq '{"hello":"World"}'
@@ -34,11 +36,24 @@ RSpec.describe SerializedHashie::Hash do
       SerializedHashie.dump_extensions.add(:test) { |value| value.upcase }
       value = described_class.dump({ hello: 'WORLD' })
       expect(value).to eq '{"hello":"WORLD"}'
-      SerializedHashie.dump_extensions.reset
+    end
+
+    it 'should work with nested hashes' do
+      SerializedHashie.dump_extensions.add(:test) { |value| value.is_a?(String) ? value.upcase : value }
+      value = described_class.dump({ hello: 'world', nested: { vegetable: 'potato', more_nesting: { fruit: 'banana' } } })
+      expect(value).to eq '{"hello":"WORLD","nested":{"vegetable":"POTATO","more_nesting":{"fruit":"BANANA"}}}'
+    end
+
+    it 'should work with nested hashes in arrays' do
+      SerializedHashie.dump_extensions.add(:test) { |value| value.is_a?(String) ? value.upcase : value }
+      value = described_class.dump({ hello: 'world', nested: { vegetables: [{ name: 'potato' }, { name: 'cucumber' }], more_nesting: { fruits: [{ name: 'banana' }, { name: 'apple' }] } } })
+      expect(value).to eq '{"hello":"WORLD","nested":{"vegetables":[{"name":"POTATO"},{"name":"CUCUMBER"}],"more_nesting":{"fruits":[{"name":"BANANA"},{"name":"APPLE"}]}}}'
     end
   end
 
   context '.load' do
+    after(:each) { SerializedHashie.load_extensions.reset }
+
     it 'should create a Hashie::Mash from the given JSON' do
       hash = described_class.load('{"hello":"world"}')
       expect(hash).to be_a SerializedHashie::Hash
@@ -66,7 +81,22 @@ RSpec.describe SerializedHashie::Hash do
       expect(hash).to be_a SerializedHashie::Hash
       expect(hash).to be_a Hashie::Mash
       expect(hash['hello']).to eq 'WORLD'
-      SerializedHashie.load_extensions.reset
+    end
+
+    it 'should work with nested hashes' do
+      SerializedHashie.load_extensions.add(:test) { |value| value.is_a?(String) ? value.downcase : nil }
+      hash = described_class.load('{"hello":"WORLD","nested":{"vegetable":"POTATO","more_nesting":{"fruit":"BANANA"}}}')
+      expect(hash).to be_a SerializedHashie::Hash
+      expect(hash).to be_a Hashie::Mash
+      expect(hash).to eq({ 'hello' => 'world', 'nested' => { 'vegetable' => 'potato', 'more_nesting' => { 'fruit' => 'banana' } } })
+    end
+
+    it 'should work with nested hashes in arrays' do
+      SerializedHashie.load_extensions.add(:test) { |value| value.is_a?(String) ? value.downcase : nil }
+      hash = described_class.load('{"hello":"WORLD","nested":{"vegetables":[{"name":"POTATO"},{"name":"CUCUMBER"}],"more_nesting":{"fruits":[{"name":"BANANA"},{"name":"APPLE"}]}}}')
+      expect(hash).to be_a SerializedHashie::Hash
+      expect(hash).to be_a Hashie::Mash
+      expect(hash).to eq({ 'hello' => 'world', 'nested' => { 'vegetables' => [{ 'name' => 'potato' }, { 'name' => 'cucumber' }], 'more_nesting' => { 'fruits' => [{ 'name' => 'banana' }, { 'name' => 'apple' }] } } })
     end
   end
 end

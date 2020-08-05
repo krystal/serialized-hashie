@@ -10,22 +10,13 @@ module SerializedHashie
     class << self
 
       def dump(obj)
-        obj = obj.reject { |_, v| blank?(v) }
-        obj.each do |key, value|
-          if value.is_a?(Array)
-            obj[key] = value.reject { |v| blank?(v) }
-          end
-
-          obj[key] = SerializedHashie.dump_extensions.run(obj[key])
-        end
-        obj.to_h.to_json
+        hash = dump_hash(obj)
+        hash.to_json
       end
 
       def load(raw_hash)
         hash = JSON.parse(presence(raw_hash) || '{}')
-        hash.each do |key, value|
-          hash[key] = SerializedHashie.load_extensions.run(value)
-        end
+        hash = load_hash(hash)
         new(hash)
       end
 
@@ -40,6 +31,42 @@ module SerializedHashie
 
       def presence(value)
         blank?(value) ? nil : value
+      end
+
+      def dump_hash(hash)
+        hash = hash.transform_values do |value|
+          dump_value(value)
+        end
+        hash.reject { |_, v| blank?(v) }
+      end
+
+      def dump_value(value)
+        if blank?(value)
+          return nil
+        end
+
+        if value.is_a?(::Hash)
+          return dump_hash(value)
+        end
+
+        if value.is_a?(::Array)
+          return value.map { |v| dump_value(v) }.compact
+        end
+
+        SerializedHashie.dump_extensions.run(value)
+      end
+
+      def load_hash(hash)
+        hash.transform_values do |value|
+          load_value(value)
+        end
+      end
+
+      def load_value(value)
+        return load_hash(value) if value.is_a?(::Hash)
+        return value.map { |v| load_value(v) } if value.is_a?(Array)
+
+        SerializedHashie.load_extensions.run(value)
       end
 
     end
