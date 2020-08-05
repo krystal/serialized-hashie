@@ -20,6 +20,9 @@ jobs:
       - name: Build Gem
         run: gem build *.gemspec
 
+      - name: Export version from tag name
+        run: echo "${GITHUB_REF/refs\/tags\//}" > VERSION
+
       - name: Setup credentials
         run: |
           mkdir -p $HOME/.gem
