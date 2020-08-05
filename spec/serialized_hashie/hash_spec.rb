@@ -52,7 +52,10 @@ RSpec.describe SerializedHashie::Hash do
   end
 
   context '.load' do
-    after(:each) { SerializedHashie.load_extensions.reset }
+    after(:each) do
+      SerializedHashie.load_extensions.reset
+      SerializedHashie.load_hash_extensions.reset
+    end
 
     it 'should create a Hashie::Mash from the given JSON' do
       hash = described_class.load('{"hello":"world"}')
@@ -105,6 +108,14 @@ RSpec.describe SerializedHashie::Hash do
       expect(hash).to be_a SerializedHashie::Hash
       expect(hash).to be_a Hashie::Mash
       expect(hash).to eq({ 'some_hash' => { 'NAME' => 'Michael' } })
+    end
+
+    it 'should pass hashses through their own extension and return non-hash values properly' do
+      SerializedHashie.load_hash_extensions.add(:test) { |hash| hash.key?('name') ? hash['name'] : hash }
+      hash = described_class.load('{"some_hash":{"name":"Michael"}}')
+      expect(hash).to be_a SerializedHashie::Hash
+      expect(hash).to be_a Hashie::Mash
+      expect(hash).to eq({ 'some_hash' => 'Michael' })
     end
   end
 end

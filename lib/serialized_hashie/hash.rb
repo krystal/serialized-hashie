@@ -65,7 +65,13 @@ module SerializedHashie
       def load_value(value)
         if value.is_a?(::Hash)
           hash = SerializedHashie.load_hash_extensions.run(value)
-          return load_hash(hash)
+
+          # If the result is still a hash, we'll return that here
+          return load_hash(hash) if hash.is_a?(::Hash)
+
+          # If the result is not a hash, we'll just return whatever
+          # was returned as a normal value.
+          return load_value(hash)
         end
 
         return value.map { |v| load_value(v) } if value.is_a?(Array)
