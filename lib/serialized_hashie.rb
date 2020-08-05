@@ -19,6 +19,10 @@ module SerializedHashie
       @dump_extensions ||= Extensions.new
     end
 
+    def load_hash_extensions
+      @load_hash_extensions ||= Extensions.new
+    end
+
   end
 
 end

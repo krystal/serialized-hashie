@@ -98,5 +98,13 @@ RSpec.describe SerializedHashie::Hash do
       expect(hash).to be_a Hashie::Mash
       expect(hash).to eq({ 'hello' => 'world', 'nested' => { 'vegetables' => [{ 'name' => 'potato' }, { 'name' => 'cucumber' }], 'more_nesting' => { 'fruits' => [{ 'name' => 'banana' }, { 'name' => 'apple' }] } } })
     end
+
+    it 'should pass through hashes through their own extensions' do
+      SerializedHashie.load_hash_extensions.add(:test) { |hash| hash.transform_keys(&:upcase) }
+      hash = described_class.load('{"some_hash":{"name":"Michael"}}')
+      expect(hash).to be_a SerializedHashie::Hash
+      expect(hash).to be_a Hashie::Mash
+      expect(hash).to eq({ 'some_hash' => { 'NAME' => 'Michael' } })
+    end
   end
 end

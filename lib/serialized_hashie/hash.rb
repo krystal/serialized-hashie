@@ -63,7 +63,11 @@ module SerializedHashie
       end
 
       def load_value(value)
-        return load_hash(value) if value.is_a?(::Hash)
+        if value.is_a?(::Hash)
+          hash = SerializedHashie.load_hash_extensions.run(value)
+          return load_hash(hash)
+        end
+
         return value.map { |v| load_value(v) } if value.is_a?(Array)
 
         SerializedHashie.load_extensions.run(value)
